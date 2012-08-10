@@ -18,19 +18,25 @@
 
 package{
 
-import Box2D.Dynamics.*
-import Box2D.Collision.*
-import Box2D.Collision.Shapes.*
-import Box2D.Dynamics.Joints.*
-import Box2D.Dynamics.Contacts.*
-import Box2D.Common.Math.*
-import flash.events.Event;
-import flash.display.*;
-import flash.text.*;
-import General.*
+import Box2D.Collision.*;
+import Box2D.Collision.Shapes.*;
+import Box2D.Common.Math.*;
+import Box2D.Dynamics.*;
+import Box2D.Dynamics.Contacts.*;
+import Box2D.Dynamics.Joints.*;
+
+import General.*;
+
 import TestBed.*;
 
+import flash.display.*;
 import flash.display.MovieClip;
+import flash.events.Event;
+import flash.events.TouchEvent;
+import flash.events.TouchEventIntent;
+import flash.events.TransformGestureEvent;
+import flash.text.*;
+
 	[SWF(width='640', height='360', backgroundColor='#292C2C', frameRate='30')]
 	public class Main extends MovieClip{
 		public function Main() {
@@ -57,7 +63,7 @@ import flash.display.MovieClip;
 			instructions_text.y = 4.5
 			instructions_text.width = 495
 			instructions_text.height = 61
-			instructions_text.text = "Box2DFlashAS3 2.0.1\n'Left'/'Right' arrows to go to previous/next example. \n'R' to reset."
+			instructions_text.text = "Box2DFlashAS3 2.0.1\n'(Swipe) Left'/'(Swipe) Right' to go to previous/next example. \n'R' or 'Swipe Down' to reset."
 			addChild(instructions_text);
 			
 			// textfield pointer
@@ -74,6 +80,18 @@ import flash.display.MovieClip;
 			// Thanks to everyone who contacted me about this fix
 			instructions_text.mouseEnabled = false;
 			m_aboutText.mouseEnabled = false;
+			
+			addEventListener(TransformGestureEvent.GESTURE_SWIPE, onSwipe);			
+		}
+		
+		protected function onSwipe(event:TransformGestureEvent):void{
+			if(event.offsetX > 0){
+				m_swipeLeft = true; 
+			}else if(event.offsetX < 0){
+				m_swipeRight = true;
+			}else if(event.offsetY > 0){
+				m_swipeDown = true;
+			}
 		}
 		
 		public function update(e:Event):void{
@@ -81,16 +99,19 @@ import flash.display.MovieClip;
 			m_sprite.graphics.clear()
 			
 			// toggle between tests
-			if (Input.isKeyPressed(39)){ // Right Arrow
+			if (Input.isKeyPressed(39) || m_swipeRight){ // Right Arrow
+				m_swipeRight = false;
 				m_currId++;
 				m_currTest = null;
 			}
-			else if (Input.isKeyPressed(37)){ // Left Arrow
+			else if (Input.isKeyPressed(37) || m_swipeLeft){ // Left Arrow
+				m_swipeLeft = false;
 				m_currId--;
 				m_currTest = null
 			}
 			// Reset
-			else if (Input.isKeyPressed(82)){ // R
+			else if (Input.isKeyPressed(82) || m_swipeDown){ // R
+				m_swipeDown = false;
 				m_currTest = null
 			}
 			
@@ -147,5 +168,8 @@ import flash.display.MovieClip;
 		static public var m_aboutText:TextField;
 		// input
 		public var m_input:Input;
+		private var m_swipeRight:Boolean;
+		private var m_swipeLeft:Boolean;
+		private var m_swipeDown:Boolean;
 	}
 }
